@@ -11,6 +11,9 @@ module.exports = exports = Player;
  * @param {Postition} position object specifying an x and y
  */
 function Player(position) {
+  this.state = "waiting";
+  this.frame = 0;
+  this.timer = 0;
   this.x = position.x;
   this.y = position.y;
   this.width  = 16;
@@ -19,9 +22,11 @@ function Player(position) {
   this.spritesheet.src = encodeURI('assets/link/not link/notlink up.png');
 
   var self = this;
-  window.onmouseclick = function(event) {
+  window.onmousedown = function(event) {
+    if(self.state == "waiting") {
     self.x = event.clientX;
     self.state = "walking";
+    }
   }
 }
 
@@ -30,8 +35,13 @@ function Player(position) {
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
  */
 Player.prototype.update = function(time) {
+  this.timer += time;
   switch(this.state) {
-    "walking":
+    case "walking":
+      if(this.timer > 1000/16) {
+        this.frame = (this.frame + 1)%4;
+        this.timer = 0;
+      }
       this.y -= 1;
       break;
   }
@@ -47,8 +57,8 @@ Player.prototype.render = function(time, ctx) {
     // image
     this.spritesheet,
     // source rectangle
-    0, 0, this.width, this.height,
+    this.frame * this.width, 0, this.width, this.height,
     // destination rectangle
-    this.x, this.y, this.width, this.height
+    this.x, this.y, 2*this.width, 2*this.height
   );
 }
