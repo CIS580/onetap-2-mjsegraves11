@@ -4,12 +4,16 @@
 /* Classes */
 const Game = require('./game.js');
 const Player = require('./player.js');
+const Spider = require('./spider.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 382, y: 440});
-var spider = new Spider({x: 200, y: 300});
+var spiders = [];
+for(var i=0;i<20;i++){
+  spiders.push(new Spider({x: Math.random() * 900 - 70, y: Math.random() * 200 + 75}));
+}
 
 /**
  * @function masterLoop
@@ -33,7 +37,9 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
-  spider.update(elapsedTime);
+  spiders.forEach(function (entry) {
+    entry.update(elapsedTime);
+  })
   // TODO: Update the game objects
 }
 
@@ -47,10 +53,13 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "lightblue";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  spiders.forEach(function (entry) {
+    entry.render(elapsedTime, ctx);
+  })
   player.render(elapsedTime, ctx);
 }
 
-},{"./game.js":2,"./player.js":3}],2:[function(require,module,exports){
+},{"./game.js":2,"./player.js":3,"./spider.js":4}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -174,4 +183,60 @@ Player.prototype.render = function(time, ctx) {
   );
 }
 
+},{}],4:[function(require,module,exports){
+"use strict";
+
+module.exports = exports = Spider;
+
+function Spider(position) {
+	this.state = "up";
+	this.frame = 0;
+	this.timer = 0;
+	this.x = position.x;
+	this.y = position.y;
+	this.width = 32;
+	this.height = 16;
+	this.count = 0;
+	this.spritesheet = new Image();
+	this.spritesheet.src = encodeURI('assets/spider/spider walk.png');
+}
+
+Spider.prototype.update = function(time) {
+	this.timer += time;
+	if(this.timer > 1000/16) {
+		this.frame = (this.frame + 1)%3;
+		this.timer = 0;
+	}
+	if(this.count == 100)
+	{
+		this.state = "down";
+	}
+	if(this.count == 0)
+	{
+		this.state = "up";
+	}
+	switch(this.state) {
+		case "up":
+			this.x += 1;
+			this.y += 0.5;
+			this.count++;
+			break;
+		case "down":
+			this.x -= 1;
+			this.y -= 0.5;
+			this.count--;
+			break;
+	}
+}
+
+Spider.prototype.render = function(time, ctx) {
+	ctx.drawImage(
+		//image
+		this.spritesheet,
+		//source 
+		this.frame*this.width, 0, this.width, this.height,
+		//destination
+		this.x, this.y, 2*this.width, 2*this.height
+	);
+}
 },{}]},{},[1]);

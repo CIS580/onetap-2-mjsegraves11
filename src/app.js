@@ -3,12 +3,16 @@
 /* Classes */
 const Game = require('./game.js');
 const Player = require('./player.js');
+const Spider = require('./spider.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 382, y: 440});
-var spider = new Spider({x: 200, y: 300});
+var spiders = [];
+for(var i=0;i<20;i++){
+  spiders.push(new Spider({x: Math.random() * 900 - 70, y: Math.random() * 200 + 75}));
+}
 
 /**
  * @function masterLoop
@@ -32,7 +36,9 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
-  spider.update(elapsedTime);
+  spiders.forEach(function (entry) {
+    entry.update(elapsedTime);
+  })
   // TODO: Update the game objects
 }
 
@@ -46,5 +52,8 @@ function update(elapsedTime) {
 function render(elapsedTime, ctx) {
   ctx.fillStyle = "lightblue";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  spiders.forEach(function (entry) {
+    entry.render(elapsedTime, ctx);
+  })
   player.render(elapsedTime, ctx);
 }

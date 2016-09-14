@@ -3,26 +3,42 @@
 module.exports = exports = Spider;
 
 function Spider(position) {
-	this.state = "moving";
+	this.state = "up";
 	this.frame = 0;
 	this.timer = 0;
 	this.x = position.x;
 	this.y = position.y;
-	this.width = 16;
+	this.width = 32;
 	this.height = 16;
+	this.count = 0;
 	this.spritesheet = new Image();
 	this.spritesheet.src = encodeURI('assets/spider/spider walk.png');
 }
 
 Spider.prototype.update = function(time) {
 	this.timer += time;
+	if(this.timer > 1000/16) {
+		this.frame = (this.frame + 1)%3;
+		this.timer = 0;
+	}
+	if(this.count == 100)
+	{
+		this.state = "down";
+	}
+	if(this.count == 0)
+	{
+		this.state = "up";
+	}
 	switch(this.state) {
-		case "moving":
-			if(this.timer > 1000/16) {
-				this.frame = (this.frame + 1)%4;
-				this.timer = 0;
-			}
+		case "up":
+			this.x += 1;
+			this.y += 0.5;
+			this.count++;
+			break;
+		case "down":
 			this.x -= 1;
+			this.y -= 0.5;
+			this.count--;
 			break;
 	}
 }
